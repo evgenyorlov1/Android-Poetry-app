@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -23,29 +22,23 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         form = (TextView) findViewById(R.id.text);
         try {
-            MyAsyncTask mt = new MyAsyncTask(new AsyncResponse() {
-                @Override
-                public void processFinish(Object output) {
-                    result = output.toString();
-                }
-            });
-            mt.execute();
+            MyAsyncTask mt = new MyAsyncTask();
+            mt.execute(form);
         } catch(Exception e) {form.setText(e.toString());}
 
     }
 
 
 
-    private class MyAsyncTask extends AsyncTask<Object, Object, Object> {
+    private class MyAsyncTask extends AsyncTask<TextView, Void, String> {
 
-        public AsyncResponse delegate = null;//Call back interface
-
-        public MyAsyncTask(AsyncResponse asyncResponse) {
-            delegate = asyncResponse;//Assigning call back interfacethrough constructor
-        }
+        TextView t;
+        String result = "fail";
 
         @Override
-        protected Object doInBackground(Object... params) {
+        protected String doInBackground(TextView... params) {
+
+            this.t = params[0];
 
             StringBuilder builder = new StringBuilder();
             try {
@@ -62,12 +55,13 @@ public class MainActivity extends Activity {
                     builder.append(line + "\n");
                 }
             } catch (Exception e) {}
-            return builder;
+            result = builder.toString();
+            return result;
         }
 
         @Override
-        protected void onPostExecute(Object result) {
-            delegate.processFinish(result);
+        protected void onPostExecute(String result) {
+            t.setText(result);
         }
 
     }
